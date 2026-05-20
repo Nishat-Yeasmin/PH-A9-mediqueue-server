@@ -36,6 +36,11 @@ async function run() {
       .db("mediqueueDB")
       .collection("tutors");
 
+      const bookingCollection = client
+  .db("mediqueueDB")
+  .collection("bookings");
+
+
       app.get('/tutors', async (req, res) => {
 
       const limit = parseInt(req.query.limit);
@@ -71,6 +76,7 @@ async function run() {
 
 });
 
+
      app.post('/tutors', async (req, res) => {
 
       const tutorData = req.body;
@@ -81,11 +87,48 @@ async function run() {
 
     });
 
+    app.post('/bookings', async (req, res) => {
+
+  const bookingData = req.body;
+
+  const tutorId = bookingData.tutorId;
+
+  const tutor = await tutorCollection.findOne({
+    _id: new ObjectId(tutorId)
+  });
+
+  if (tutor.totalSlot === 0) {
+
+    return res.send({
+      message: "No slot available"
+    });
+  }
+
+  await tutorCollection.updateOne(
+
+    {
+      _id: new ObjectId(tutorId)
+    },
+
+    {
+      $inc: {
+        totalSlot: -1
+      }
+    }
+  );
+
+  const result = await bookingCollection.insertOne(bookingData);
+
+  res.send(result);
+
+});
+
     console.log("Tutor APIs ready");
 
   } catch (error) {
     console.error("MongoDB connection error:", error);
   }
+
 }
 run().catch(console.dir);
 
