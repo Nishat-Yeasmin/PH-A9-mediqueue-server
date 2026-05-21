@@ -46,7 +46,7 @@ async function run() {
   .collection("bookings");
 
 
-      app.get('/tutors', async (req, res) => {
+      app.get('/api/tutors', async (req, res) => {
 
       const limit = parseInt(req.query.limit) || 0 ;
 
@@ -66,7 +66,7 @@ async function run() {
 
     });
 
-    app.get('/tutors/:id', async (req, res) => {
+    app.get('/api/tutors/:id', async (req, res) => {
 
   try {
 
@@ -122,7 +122,7 @@ async function run() {
     });
 
     // **DELETE Tutor**
-    app.delete('/tutors/:id', async (req, res) => {
+    app.delete('/api/tutors/:id', async (req, res) => {
       try {
         const id = req.params.id;
         const query = { _id: new ObjectId(id) };
@@ -140,7 +140,7 @@ async function run() {
       }
     });
 
-   app.post('/bookings', async (req, res) => {
+   app.post('/api/bookings', async (req, res) => {
 
   try {
 
@@ -189,7 +189,7 @@ async function run() {
 });
 
     // ==================== GET All Bookings of a Student ====================
-    app.get('/bookings', async (req, res) => {
+    app.get('/api/bookings', async (req, res) => {
       try {
         const studentEmail = req.query.studentEmail;
         
@@ -208,7 +208,7 @@ async function run() {
       }
     });
 
-app.patch('/bookings/:id', async (req, res) => {
+app.patch('/api/bookings/:id', async (req, res) => {
       try {
         const id = req.params.id;
         const { bookStatus } = req.body;
