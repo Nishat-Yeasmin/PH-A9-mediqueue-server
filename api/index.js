@@ -10,7 +10,7 @@ const port = process.env.PORT || 5000;
 app.use(cors({
    origin: [
     "http://localhost:5173",
-    "https://ph-a9-mediqueue-client-w8ar.vercel.app"
+    "https://ph-a9-mediqueue-client.vercel.app"
   ]
 }));
 app.use(express.json());
