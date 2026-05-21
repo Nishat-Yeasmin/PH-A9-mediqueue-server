@@ -25,6 +25,8 @@ const client = new MongoClient(uri, {
         deprecationErrors: true,
     }
 });
+// -------------------
+
 
 async function run() {
 
@@ -250,11 +252,11 @@ app.get('/', (req, res) => {
 
 
 
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-});
+// app.listen(port, () => {
+//     console.log(`Server running on port ${port}`);
+// });
 
-const app = require('../server')
+// const app = require('../server')
 module.exports = app;
    
       
