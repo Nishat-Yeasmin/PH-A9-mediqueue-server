@@ -43,14 +43,19 @@ async function run() {
 
       app.get('/tutors', async (req, res) => {
 
-      const limit = parseInt(req.query.limit);
+      const limit = parseInt(req.query.limit) || 0 ;
 
-      let query = tutorCollection.find();
-
-      if (limit) {
-        query = query.limit(limit);
+      const pipeline = [];
+      if(limit>0){
+         pipeline.push({ $limit: limit });
       }
-       const result = await query.toArray();
+         const result = await tutorCollection.aggregate(pipeline).toArray();
+      // let query = tutorCollection.find();
+
+      // if (limit) {
+      //   query = query.limit(limit);
+      // }
+      //  const result = await query.toArray();
 
       res.send(result);
 
