@@ -7,7 +7,12 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
 
-app.use(cors());
+app.use(cors({
+   origin: [
+    "http://localhost:5173",
+    "https://ph-a9-mediqueue-client-w8ar.vercel.app"
+  ]
+}));
 app.use(express.json());
 
 const uri = `mongodb://nishatyasminnisha_db_user:igAdOcjWd4TJBmLW@ac-t8mzagm-shard-00-00.ilfkjdr.mongodb.net:27017,ac-t8mzagm-shard-00-01.ilfkjdr.mongodb.net:27017,ac-t8mzagm-shard-00-02.ilfkjdr.mongodb.net:27017/?ssl=true&replicaSet=atlas-2whiym-shard-0&authSource=admin&appName=Cluster0`
