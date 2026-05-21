@@ -25,68 +25,26 @@ const client = new MongoClient(uri, {
         deprecationErrors: true,
     }
 });
-// -------------------
-let tutorCollection, bookingCollection;
 
-// MongoDB Connect
-async function connectDB() {
+
+async function run() {
+
   try {
     await client.connect();
-    const db = client.db("mediqueueDB");
-    tutorCollection = db.collection("tutors");
-    bookingCollection = db.collection("bookings");
-    console.log("✅ MongoDB Connected Successfully");
-  } catch (error) {
-    console.error("❌ MongoDB Connection Failed:", error);
-  }
 
-  }
+    console.log("MongoDB connected successfully");
 
-connectDB();
+    await client.db("admin").command({ ping: 1 });
 
-// ==================== ROUTES ====================
+    console.log("MongoDB connected successfully");
 
-app.get('/api/tutors', async (req, res) => {
-  try {
-    if (!tutorCollection) {
-      return res.status(500).send({ message: "Database not connected yet" });
-    }
+    const tutorCollection = client
+      .db("mediqueueDB")
+      .collection("tutors");
 
-    const limit = parseInt(req.query.limit) || 0;
-    let result;
-    if (limit > 0) {
-      result = await tutorCollection.aggregate([{ $limit: limit }]).toArray();
-    } else {
-      result = await tutorCollection.find().toArray();
-    }
-
-    console.log(`Tutors fetched: ${result.length} items`);  // লগ দেখার জন্য
-    res.send(result);
-  } catch (error) {
-    console.error("Tutors API Error:", error);
-    res.status(500).send({ message: "Failed to fetch tutors", error: error.message });
-  }
-});
-// ---------------------
-
-// async function run() {
-
-//   try {
-//     await client.connect();
-
-//     console.log("MongoDB connected successfully");
-
-//     await client.db("admin").command({ ping: 1 });
-
-//     console.log("MongoDB connected successfully");
-
-//     const tutorCollection = client
-//       .db("mediqueueDB")
-//       .collection("tutors");
-
-//       const bookingCollection = client
-//   .db("mediqueueDB")
-//   .collection("bookings");
+      const bookingCollection = client
+  .db("mediqueueDB")
+  .collection("bookings");
 
 
       app.get('/api/tutors', async (req, res) => {
@@ -130,7 +88,7 @@ app.get('/api/tutors', async (req, res) => {
 });
 
 
-     app.post('/tutors', async (req, res) => {
+     app.post('/api/tutors', async (req, res) => {
 
       const tutorData = req.body;
 
@@ -140,10 +98,8 @@ app.get('/api/tutors', async (req, res) => {
 
     });
 
-    // ====================== নতুন যোগ করা রুট ======================
-
-    // **UPDATE Tutor**
-    app.put('/tutors/:id', async (req, res) => {
+    
+    app.put('/api/tutors/:id', async (req, res) => {
       try {
         const id = req.params.id;
         const updatedData = req.body;
@@ -231,7 +187,7 @@ app.get('/api/tutors', async (req, res) => {
   }
 });
 
-    // ==================== GET All Bookings of a Student ====================
+    
     app.get('/api/bookings', async (req, res) => {
       try {
         const studentEmail = req.query.studentEmail;
