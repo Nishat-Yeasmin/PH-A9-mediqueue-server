@@ -26,26 +26,67 @@ const client = new MongoClient(uri, {
     }
 });
 // -------------------
+let tutorCollection, bookingCollection;
 
-
-async function run() {
-
+// MongoDB Connect
+async function connectDB() {
   try {
     await client.connect();
+    const db = client.db("mediqueueDB");
+    tutorCollection = db.collection("tutors");
+    bookingCollection = db.collection("bookings");
+    console.log("✅ MongoDB Connected Successfully");
+  } catch (error) {
+    console.error("❌ MongoDB Connection Failed:", error);
+  }
 
-    console.log("MongoDB connected successfully");
+  }
 
-    await client.db("admin").command({ ping: 1 });
+connectDB();
 
-    console.log("MongoDB connected successfully");
+// ==================== ROUTES ====================
 
-    const tutorCollection = client
-      .db("mediqueueDB")
-      .collection("tutors");
+app.get('/api/tutors', async (req, res) => {
+  try {
+    if (!tutorCollection) {
+      return res.status(500).send({ message: "Database not connected yet" });
+    }
 
-      const bookingCollection = client
-  .db("mediqueueDB")
-  .collection("bookings");
+    const limit = parseInt(req.query.limit) || 0;
+    let result;
+    if (limit > 0) {
+      result = await tutorCollection.aggregate([{ $limit: limit }]).toArray();
+    } else {
+      result = await tutorCollection.find().toArray();
+    }
+
+    console.log(`Tutors fetched: ${result.length} items`);  // লগ দেখার জন্য
+    res.send(result);
+  } catch (error) {
+    console.error("Tutors API Error:", error);
+    res.status(500).send({ message: "Failed to fetch tutors", error: error.message });
+  }
+});
+// ---------------------
+
+// async function run() {
+
+//   try {
+//     await client.connect();
+
+//     console.log("MongoDB connected successfully");
+
+//     await client.db("admin").command({ ping: 1 });
+
+//     console.log("MongoDB connected successfully");
+
+//     const tutorCollection = client
+//       .db("mediqueueDB")
+//       .collection("tutors");
+
+//       const bookingCollection = client
+//   .db("mediqueueDB")
+//   .collection("bookings");
 
 
       app.get('/api/tutors', async (req, res) => {
