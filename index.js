@@ -87,47 +87,149 @@ async function run() {
 
     });
 
-    app.post('/bookings', async (req, res) => {
+    // ====================== নতুন যোগ করা রুট ======================
 
-  const bookingData = req.body;
+    // **UPDATE Tutor**
+    app.put('/tutors/:id', async (req, res) => {
+      try {
+        const id = req.params.id;
+        const updatedData = req.body;
 
-  const tutorId = bookingData.tutorId;
+        const filter = { _id: new ObjectId(id) };
+        const updateDoc = { $set: updatedData };
 
-  const tutor = await tutorCollection.findOne({
-    _id: new ObjectId(tutorId)
-  });
+        const result = await tutorCollection.updateOne(filter, updateDoc);
 
-  if (tutor.totalSlot === 0) {
-
-    return res.send({
-      message: "No slot available"
-    });
-  }
-
-  await tutorCollection.updateOne(
-
-    {
-      _id: new ObjectId(tutorId)
-    },
-
-    {
-      $inc: {
-        totalSlot: -1
+        if (result.modifiedCount > 0) {
+          res.send({ success: true, message: "Tutor updated successfully" });
+        } else {
+          res.status(404).send({ message: "Tutor not found or no changes made" });
+        }
+      } catch (error) {
+        console.error(error);
+        res.status(500).send({ message: "Failed to update tutor" });
       }
+    });
+
+    // **DELETE Tutor**
+    app.delete('/tutors/:id', async (req, res) => {
+      try {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+
+        const result = await tutorCollection.deleteOne(query);
+
+        if (result.deletedCount > 0) {
+          res.send({ success: true, deletedCount: result.deletedCount, message: "Tutor deleted successfully" });
+        } else {
+          res.status(404).send({ message: "Tutor not found" });
+        }
+      } catch (error) {
+        console.error("Delete Error:", error);
+        res.status(500).send({ message: "Failed to delete tutor" });
+      }
+    });
+
+   app.post('/bookings', async (req, res) => {
+
+  try {
+
+    console.log("Booking API hit");
+    console.log(req.body);
+
+    const bookingData = req.body;
+
+    if (!bookingData?.tutorId) {
+      return res.status(400).send({ message: "Tutor ID missing" });
     }
-  );
 
-  const result = await bookingCollection.insertOne(bookingData);
+    const tutor = await tutorCollection.findOne({
+      _id: new ObjectId(bookingData.tutorId)
+    });
 
-  res.send(result);
+    if (!tutor) {
+      return res.status(404).send({ message: "Tutor not found" });
+    }
 
-});
+    const currentSlot = Number(tutor.totalSlot || 0);
 
-    console.log("Tutor APIs ready");
+    if (currentSlot <= 0) {
+      return res.status(400).send({ message: "No slot available" });
+    }
+
+    await tutorCollection.updateOne(
+      { _id: new ObjectId(bookingData.tutorId) },
+      { $inc: { totalSlot: -1 } }
+    );
+
+    const result = await bookingCollection.insertOne(bookingData);
+
+    res.send(result);
 
   } catch (error) {
+
+    console.log(error);
+
+    res.status(500).send({
+      message: "Booking failed",
+      error: error.message
+    });
+
+  }
+});
+
+    // ==================== GET All Bookings of a Student ====================
+    app.get('/bookings', async (req, res) => {
+      try {
+        const studentEmail = req.query.studentEmail;
+        
+        if (!studentEmail) {
+          return res.status(400).send({ message: "Student email is required" });
+        }
+
+        const result = await bookingCollection.find({ 
+          studentEmail: studentEmail 
+        }).toArray();
+
+        res.send(result);
+      } catch (error) {
+        console.error("Get Bookings Error:", error);
+        res.status(500).send({ message: "Failed to load bookings" });
+      }
+    });
+
+app.patch('/bookings/:id', async (req, res) => {
+      try {
+        const id = req.params.id;
+        const { bookStatus } = req.body;
+
+        const filter = { _id: new ObjectId(id) };
+        const updateDoc = { $set: { bookStatus } };
+
+        const result = await bookingCollection.updateOne(filter, updateDoc);
+
+        if (result.modifiedCount > 0) {
+          res.send({ 
+            modifiedCount: result.modifiedCount, 
+            message: "Booking status updated successfully" 
+          });
+        } else {
+          res.status(404).send({ message: "Booking not found" });
+        }
+      } catch (error) {
+        console.error("Cancel Booking Error:", error);
+        res.status(500).send({ message: "Failed to cancel booking" });
+      }
+    });
+
+    console.log("All Tutors and Booking APIs are ready");
+
+  } catch (error) {
+    
     console.error("MongoDB connection error:", error);
   }
+
+
 
 }
 run().catch(console.dir);
@@ -135,6 +237,8 @@ run().catch(console.dir);
 app.get('/', (req, res) => {
     res.send('MediQueue Server Running');
 });
+
+
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
