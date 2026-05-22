@@ -13,10 +13,12 @@ app.use(cors({
     "https://ph-a9-mediqueue-client.vercel.app"
   ]
 }));
+
 app.use(express.json());
 
-const uri = `mongodb://nishatyasminnisha_db_user:igAdOcjWd4TJBmLW@ac-t8mzagm-shard-00-00.ilfkjdr.mongodb.net:27017,ac-t8mzagm-shard-00-01.ilfkjdr.mongodb.net:27017,ac-t8mzagm-shard-00-02.ilfkjdr.mongodb.net:27017/?ssl=true&replicaSet=atlas-2whiym-shard-0&authSource=admin&appName=Cluster0`
-//  const uri = `mongodb+srv://nishatyasminnisha_db_user:igAdOcjWd4TJBmLW@cluster0.ilfkjdr.mongodb.net/?appName=Cluster0`;
+// const uri = `mongodb://${process.env.DB_USER}:${process.env.DB_PASS}@ac-t8mzagm-shard-00-00.ilfkjdr.mongodb.net:27017,ac-t8mzagm-shard-00-01.ilfkjdr.mongodb.net:27017,ac-t8mzagm-shard-00-02.ilfkjdr.mongodb.net:27017/?ssl=true&replicaSet=atlas-2whiym-shard-0&authSource=admin&appName=Cluster0`
+
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ilfkjdr.mongodb.net/?appName=Cluster0`;
 
 const client = new MongoClient(uri, {
     serverApi: {
@@ -253,7 +255,10 @@ app.get('/', (req, res) => {
 //     console.log(`Server running on port ${port}`);
 // });
 
-// const app = require('../server')
-module.exports = app;
+module.exports = (req, res) => {
+  return app(req, res);
+};
+
+
    
       
