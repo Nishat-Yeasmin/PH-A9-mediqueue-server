@@ -10,15 +10,18 @@ const port = process.env.PORT || 5000;
 app.use(cors({
    origin: [
     "http://localhost:5173",
-    "https://ph-a9-mediqueue-client.vercel.app"
-  ]
+    "https://mediqueue-client-kappa.vercel.app"
+  ],
+  credentials: true
 }));
 
 app.use(express.json());
 
-// const uri = `mongodb://${process.env.DB_USER}:${process.env.DB_PASS}@ac-t8mzagm-shard-00-00.ilfkjdr.mongodb.net:27017,ac-t8mzagm-shard-00-01.ilfkjdr.mongodb.net:27017,ac-t8mzagm-shard-00-02.ilfkjdr.mongodb.net:27017/?ssl=true&replicaSet=atlas-2whiym-shard-0&authSource=admin&appName=Cluster0`
+
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ilfkjdr.mongodb.net/?appName=Cluster0`;
+
+// const uri = `mongodb://${process.env.DB_USER}:${process.env.DB_PASS}@ac-t8mzagm-shard-00-00.ilfkjdr.mongodb.net:27017,ac-t8mzagm-shard-00-01.ilfkjdr.mongodb.net:27017,ac-t8mzagm-shard-00-02.ilfkjdr.mongodb.net:27017/?ssl=true&replicaSet=atlas-2whiym-shard-0&authSource=admin&appName=Cluster0`;
 
 const client = new MongoClient(uri, {
     serverApi: {
@@ -32,11 +35,10 @@ const client = new MongoClient(uri, {
 async function run() {
 
   try {
-    await client.connect();
+    
 
     console.log("MongoDB connected successfully");
 
-    await client.db("admin").command({ ping: 1 });
 
     console.log("MongoDB connected successfully");
 
@@ -255,9 +257,8 @@ app.get('/', (req, res) => {
 //     console.log(`Server running on port ${port}`);
 // });
 
-module.exports = (req, res) => {
-  return app(req, res);
-};
+
+module.exports = app;
 
 
    
